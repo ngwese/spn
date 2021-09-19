@@ -25,9 +25,16 @@ using namespace soundplane;
 static void spn_weave_op(void *value, lua_State *lvm) {
     SPNTouch *t = static_cast<SPNTouch *>(value);
     lua_getglobal(lvm, "event_demo_handler");
-    spn_touch_new(lvm, t, true /* is_owned */);
-    lua_pcall(lvm, 1, 0,
+    // spn_touch_new(lvm, t, true /* is_owned */);
+    lua_pushinteger(lvm, t->index);
+    lua_pushnumber(lvm, t->x);
+    lua_pushnumber(lvm, t->y);
+    lua_pushnumber(lvm, t->z);
+    lua_pushnumber(lvm, t->note);
+    lua_pushinteger(lvm, t->state);
+    lua_pcall(lvm, 6, 0,
               0); // one argument, zero results, default error message
+    SPNTouchPool::destroy(t);
 }
 
 static void spn_free_op(void *value) {
