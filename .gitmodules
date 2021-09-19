@@ -4,6 +4,3 @@
 [submodule "dep/norns"]
 	path = dep/norns
 	url = ssh://git@github.com/ngwese/norns.git
-[submodule "dep/luwra"]
-	path = dep/luwra
-	url = https://github.com/vapourismo/luwra
