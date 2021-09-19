@@ -19,6 +19,7 @@ set(SOURCE_FILES
   SPNTouchPool.cpp
   SPNOutput.cpp
   spn_touch.cpp
+  spn_zone.cpp
   lua_common.cpp
   lua_spn.cpp
 )
