@@ -17,6 +17,7 @@ static int spn_touch_equals(lua_State *L);
 static const char *spn_touch_modulename = "spn";
 static const char *spn_touch_classname = "spn.Touch";
 
+// clang-format off
 static luaL_Reg spn_touch_methods[] = {
     {"__gc", spn_touch_free},
     {"__tostring", spn_touch_tostring},
@@ -27,13 +28,15 @@ static luaL_Reg spn_touch_methods[] = {
 static luaL_Reg spn_touch_functions[] = {
     {NULL, NULL}
 };
+// clang-format on
 
 //
 // module
 //
 
 int spn_touch_open(lua_State *L) {
-    return register_object_module(L, spn_touch_modulename, spn_touch_classname, spn_touch_methods, spn_touch_functions);
+    return register_object_module(L, spn_touch_modulename, spn_touch_classname,
+                                  spn_touch_methods, spn_touch_functions);
 }
 
 int spn_touch_new(lua_State *L, SPNTouch *t, bool is_owner) {

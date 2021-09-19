@@ -4,13 +4,13 @@
 #define LUA_SPN_VERSION "0.1"
 
 #ifndef LUA_SPN_API
-#define LUA_SPN_API __attribute__ ((visibility ("default")))
+#define LUA_SPN_API __attribute__((visibility("default")))
 #endif
 
 extern "C" {
 
-#include "lua.h"
 #include "lauxlib.h"
+#include "lua.h"
 
 LUA_SPN_API int luaopen_spn(lua_State *L);
 

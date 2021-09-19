@@ -1,9 +1,9 @@
 #include "lua_spn.h"
 
 #include <chrono>
-#include <thread>
 #include <iostream>
 #include <memory>
+#include <thread>
 
 // lua
 #include <lauxlib.h>
@@ -19,29 +19,29 @@ extern "C" {
 // soundplaneclient
 #include "Client.h"
 #include "Logging.h"
-#include "Zone.h"
 #include "Touch.h"
+#include "Zone.h"
 
 // this
 #include "spn_touch.h"
 #include "spn_zone.h"
 // #include "SPNOutput.h"
 
-
 //
 // module definition
 //
 
+// clang-format off
 static const luaL_Reg mod[] = {
     {"touch", spn_touch_open},
     // {"zone", spn_zone_open},
     {NULL, NULL}
 };
 
-
 static luaL_Reg func[] = {
     {NULL, NULL}
 };
+// clang-format on
 
 LUA_SPN_API int luaopen_spn(lua_State *L) {
     lua_newtable(L);

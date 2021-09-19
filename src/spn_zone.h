@@ -2,8 +2,8 @@
 
 #include "Zone.h"
 
-#include "lua.h"
 #include "lauxlib.h"
+#include "lua.h"
 
 int spn_zone_open(lua_State *L);
 int spn_zone_new(lua_State *L, soundplane::Zone *z);
