@@ -12,6 +12,7 @@
 extern "C" {
 // matron
 #include "event_types.h"
+#include "event_custom.h"
 #include "events.h"
 }
 
@@ -22,7 +23,7 @@ using namespace soundplane;
 // custom event glue
 //
 
-static void spn_weave_op(void *value, lua_State *lvm) {
+static void spn_weave_op(lua_State *lvm, void *value, void *context) {
     SPNTouch *t = static_cast<SPNTouch *>(value);
     lua_getglobal(lvm, "event_demo_handler");
     // spn_touch_new(lvm, t, true /* is_owned */);
@@ -37,7 +38,7 @@ static void spn_weave_op(void *value, lua_State *lvm) {
     SPNTouchPool::destroy(t);
 }
 
-static void spn_free_op(void *value) {
+static void spn_free_op(void *value, void *context) {
     // NOTE: nothing to do here since the spn_touch glue will free the SPNTouch
     // back to the pool on __gc
 
@@ -62,7 +63,7 @@ void SPNOutput::processTouch(int i, int offset, const Touch &t) {
         // grab a value from the pool an push into the event queue
         SPNTouch *value =
             SPNTouchPool::construct(i, t.x, t.y, t.z, t.note, t.state);
-        union event_data *ev = event_custom_new(&spn_ops, value);
+        union event_data *ev = event_custom_new(&spn_ops, value, NULL);
         event_post(ev);
     }
 }

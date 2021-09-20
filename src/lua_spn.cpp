@@ -10,12 +10,6 @@
 #include <lua.h>
 #include <lualib.h>
 
-extern "C" {
-// matron
-#include "event_types.h"
-#include "events.h"
-}
-
 // soundplaneclient
 #include "Client.h"
 #include "ConsoleOutput.h"
