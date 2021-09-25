@@ -1,4 +1,4 @@
-#include "lua_spn.h"
+#include "spn_module.h"
 
 // #include <chrono>
 #include <iostream>
@@ -61,7 +61,7 @@ static luaL_Reg func[] = {
 };
 // clang-format on
 
-LUA_SPN_API int luaopen_spn(lua_State *L) {
+LUA_SPN_API int luaopen__spn(lua_State *L) {
     lua_newtable(L);
 
     // register/open sub-modules

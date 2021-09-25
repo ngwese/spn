@@ -6,8 +6,8 @@ local this_name = mod.this_name
 local spn_init = function()
   -- ensure the global spn table has the
   spn = {}
+  spn.client = require '_spn'
   spn.touch = function(t, x, y, z, state, note) end
-  spn.client = require 'spn'
 end
 
 local post_startup = function()

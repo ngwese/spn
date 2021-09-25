@@ -12,7 +12,7 @@ extern "C" {
 #include "lauxlib.h"
 #include "lua.h"
 
-LUA_SPN_API int luaopen_spn(lua_State *L);
+LUA_SPN_API int luaopen__spn(lua_State *L);
 
 } // extern "C"
 

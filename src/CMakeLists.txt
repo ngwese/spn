@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-set(LUA_MODULE_NAME "spn")
+set(LUA_MODULE_NAME "_spn")
 
 project(lua-module CXX)
 
@@ -16,12 +16,12 @@ include_directories(${LIBLUA_INCLUDE_DIRS})
 # module
 #
 set(SOURCE_FILES
+  lua_common.cpp
   SPNTouchPool.cpp
   SPNOutput.cpp
   spn_touch.cpp
   spn_zone.cpp
-  lua_common.cpp
-  lua_spn.cpp
+  spn_module.cpp
 )
 
 add_library(lua-module MODULE ${SOURCE_FILES})
