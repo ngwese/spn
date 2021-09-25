@@ -40,6 +40,8 @@ static int spn_client_start(lua_State *L);
 static int spn_client_stop(lua_State *L);
 static int spn_client_is_running(lua_State *L);
 static int spn_client_verbose(lua_State *L);
+static int spn_client_set_property(lua_State *L);
+static int spn_client_get_property(lua_State *L);
 
 //
 // module definition
@@ -57,6 +59,8 @@ static luaL_Reg func[] = {
     {"stop", spn_client_stop},
     {"is_running", spn_client_is_running},
     {"verbose", spn_client_verbose},
+    {"set_property", spn_client_set_property},
+    {"get_property", spn_client_get_property},
     {NULL, NULL}
 };
 // clang-format on
@@ -120,3 +124,30 @@ static int spn_client_is_running(lua_State *L) {
 }
 
 static int spn_client_verbose(lua_State *L) { return 0; }
+
+static int spn_client_set_property(lua_State *L) {
+    if (!sClientRunning) {
+        lua_pushboolean(L, false);
+        return 1;
+    }
+
+    const char *name = luaL_checkstring(L, 1);
+    const float value = luaL_checknumber(L, 2);
+    sClient->setProperty(name, value);
+    lua_pushboolean(L, true);
+    return 1;
+}
+
+static int spn_client_get_property(lua_State *L) {
+    if (!sClientRunning) {
+        lua_pushnumber(L, 0.0);
+        lua_pushboolean(L, false);
+        return 2;
+    }
+
+    const char *name = luaL_checkstring(L, 1);
+    const float value = sClient->getFloatProperty(name);
+    lua_pushnumber(L, value);
+    lua_pushboolean(L, true);
+    return 2;
+}
