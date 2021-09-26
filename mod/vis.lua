@@ -84,7 +84,7 @@ end
 
 function cleanup()
   if redraw_clock then
-    redraw_clock.stop()
+    clock.cancel(redraw_clock)
   end
 end
 
