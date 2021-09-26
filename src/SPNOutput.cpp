@@ -23,11 +23,17 @@ using namespace soundplane;
 // custom event glue
 //
 
+static inline void _push_module_func(lua_State *lvm, const char *module, const char *func) {
+    lua_getglobal(lvm, module);
+    lua_getfield(lvm, -1, func);
+    lua_remove(lvm, -2);
+}
+
 static void spn_weave_op(lua_State *lvm, void *value, void *context) {
     SPNTouch *t = static_cast<SPNTouch *>(value);
-    lua_getglobal(lvm, "event_demo_handler");
+    _push_module_func(lvm, "spn", "touch");
     // spn_touch_new(lvm, t, true /* is_owned */);
-    lua_pushinteger(lvm, t->index);
+    lua_pushinteger(lvm, t->index + 1); // 1s based index for lua
     lua_pushnumber(lvm, t->x);
     lua_pushnumber(lvm, t->y);
     lua_pushnumber(lvm, t->z);

@@ -7,7 +7,13 @@ local spn_init = function()
   -- ensure the global spn table has the
   spn = {}
   spn.client = require '_spn'
-  spn.touch = function(t, x, y, z, state, note) end
+  spn.touch = function(t, x, y, z, note, state) end
+end
+
+local spn_clean = function()
+  if spn.client.is_running() then
+    spn.client.stop()
+  end
 end
 
 local post_startup = function()
@@ -16,12 +22,9 @@ local post_startup = function()
   spn_init()
 end
 
-local script_post = function()
-end
-
 mod.hook.register("system_post_startup", "spn_startup", post_startup)
 mod.hook.register("script_pre_init", "spn_init", spn_init)
-mod.hook.register("script_post_cleanup", "spn_cleanup", script_post)
+mod.hook.register("script_post_cleanup", "spn_cleanup", spn_clean)
 
 --
 -- menu: zone selection, parameter modification
