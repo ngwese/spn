@@ -41,6 +41,7 @@ static int spn_client_is_running(lua_State *L);
 static int spn_client_verbose(lua_State *L);
 static int spn_client_set_property(lua_State *L);
 static int spn_client_get_property(lua_State *L);
+static int spn_client_zone_preset(lua_State *L);
 
 //
 // module definition
@@ -60,6 +61,7 @@ static luaL_Reg func[] = {
     {"verbose", spn_client_verbose},
     {"set_property", spn_client_set_property},
     {"get_property", spn_client_get_property},
+    {"zone_preset", spn_client_zone_preset},
     {NULL, NULL}
 };
 // clang-format on
@@ -153,4 +155,28 @@ static int spn_client_get_property(lua_State *L) {
     lua_pushnumber(L, value);
     lua_pushboolean(L, true);
     return 2;
+}
+
+static int spn_client_zone_preset(lua_State *L) {
+    bool was_set = false;
+    if (sClientRunning) {
+        uint8_t idx = luaL_checknumber(L, 1);
+        switch (idx) {
+        case 0:
+            sClient->setZone(soundplane::Zone::presetChromatic());
+            was_set = true;
+            break;
+        case 1:
+            sClient->setZones(soundplane::Zone::presetRowsInFourths());
+            was_set = true;
+            break;
+        case 2:
+            sClient->setZones(soundplane::Zone::presetRowsInOctaves());
+            was_set = true;
+            break;
+        }
+    }
+
+    lua_pushboolean(L, was_set);
+    return 1;
 }

@@ -1,11 +1,18 @@
 local function add_params(group, name)
   local name = name or 'SPN'
   if group then
-    params:add_group(name, 15)
+    params:add_group(name, 16)
   else
     params:add_separator(name)
   end
 
+  params:add{type = 'option', id = 'spn_zone_preset', name = 'zone preset',
+    options = {'chromatic', 'row fourths', 'row octaves'},
+    default = 1,
+    action = function(v)
+      spn.client.zone_preset(v - 1)
+    end
+  }
   params:add{type = 'number', id = 'spn_max_touches', name = 'max touches',
     min = 1, max = 16, default = 8,
     action = function(v)
