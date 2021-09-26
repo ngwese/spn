@@ -11,8 +11,8 @@
 
 extern "C" {
 // matron
-#include "event_types.h"
 #include "event_custom.h"
+#include "event_types.h"
 #include "events.h"
 }
 
@@ -23,7 +23,8 @@ using namespace soundplane;
 // custom event glue
 //
 
-static inline void _push_module_func(lua_State *lvm, const char *module, const char *func) {
+static inline void _push_module_func(lua_State *lvm, const char *module,
+                                     const char *func) {
     lua_getglobal(lvm, module);
     lua_getfield(lvm, -1, func);
     lua_remove(lvm, -2);

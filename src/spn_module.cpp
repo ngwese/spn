@@ -42,7 +42,6 @@ static int spn_client_verbose(lua_State *L);
 static int spn_client_set_property(lua_State *L);
 static int spn_client_get_property(lua_State *L);
 
-
 //
 // module definition
 //
@@ -81,7 +80,6 @@ LUA_SPN_API int luaopen__spn(lua_State *L) {
 
     return 1;
 }
-
 
 //
 // implementation
