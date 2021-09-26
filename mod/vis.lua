@@ -56,8 +56,11 @@ end
 
 
 function init()
-  spn.client.start()
+  spn.add_params(false)
   spn.touch = touch
+
+  spn.client.start()
+
   touches_max = spn.client.get_property("max_touches")
   for i=1,touches_max do
     touches_off[i] = 1
