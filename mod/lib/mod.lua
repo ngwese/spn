@@ -6,11 +6,12 @@ local this_name = mod.this_name
 local spn_params = require(this_name .. '/lib/param')
 
 local spn_init = function()
-  -- ensure the global spn table has the
-  spn = {}
-  spn.client = require '_spn'
-  spn.touch = function(t, x, y, z, note, state) end
-  spn.add_params = spn_params.add_params
+  -- ensure the global spn table has the goods
+  spn = {
+    client = require '_spn',
+    handlers = {},
+    add_params = spn_params.add_params,
+  }
 end
 
 local spn_clean = function()

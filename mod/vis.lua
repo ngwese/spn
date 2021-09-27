@@ -5,6 +5,8 @@ touches = {}
 dirty = false
 redraw_clock = nil
 
+local actions = {}
+
 -- soundplane touch callback
 -- @tparam number t touch/voice number
 -- @tparam number x horizontal position within the zone [0-1]
@@ -13,7 +15,7 @@ redraw_clock = nil
 -- @tparam number state, 1 = start,  2 = update, 3 = release
 -- @tparam number note note number for x within zone, fractional
 --    component represents semitone pitch bend
-function touch(t, x, y, z, note, state)
+function actions.touch(t, x, y, z, note, state)
   local off = (touches_off[t] % touches_hist) + 1
   local this = touches[t][off]
   -- transform the touch into screen space
@@ -26,6 +28,14 @@ function touch(t, x, y, z, note, state)
   -- tab.print(this)
   touches_off[t] = off
   dirty = true
+end
+
+function actions.frame_begin(ts)
+  -- print("begin", ts)
+end
+
+function actions.frame_end()
+  -- print("end")
 end
 
 
@@ -57,8 +67,7 @@ end
 
 function init()
   spn.add_params(false)
-  spn.touch = touch
-
+  spn.handlers = actions
   spn.client.start()
 
   touches_max = spn.client.get_property("max_touches")
