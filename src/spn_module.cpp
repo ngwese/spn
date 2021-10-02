@@ -42,6 +42,7 @@ static int spn_client_verbose(lua_State *L);
 static int spn_client_set_property(lua_State *L);
 static int spn_client_get_property(lua_State *L);
 static int spn_client_zone_preset(lua_State *L);
+static int spn_client_set_zones(lua_State *L);
 
 //
 // module definition
@@ -62,6 +63,7 @@ static luaL_Reg func[] = {
     {"set_property", spn_client_set_property},
     {"get_property", spn_client_get_property},
     {"zone_preset", spn_client_zone_preset},
+    {"set_zones", spn_client_set_zones},
     {NULL, NULL}
 };
 // clang-format on
@@ -132,8 +134,7 @@ static int spn_client_verbose(lua_State *L) { return 0; }
 
 static int spn_client_set_property(lua_State *L) {
     if (!sClientRunning) {
-        lua_pushboolean(L, false);
-        return 1;
+        return luaL_error(L, "client not running");
     }
 
     const char *name = luaL_checkstring(L, 1);
@@ -145,9 +146,7 @@ static int spn_client_set_property(lua_State *L) {
 
 static int spn_client_get_property(lua_State *L) {
     if (!sClientRunning) {
-        lua_pushnumber(L, 0.0);
-        lua_pushboolean(L, false);
-        return 2;
+        return luaL_error(L, "client not running");
     }
 
     const char *name = luaL_checkstring(L, 1);
@@ -158,25 +157,56 @@ static int spn_client_get_property(lua_State *L) {
 }
 
 static int spn_client_zone_preset(lua_State *L) {
+    if (!sClientRunning) {
+        return luaL_error(L, "client not running");
+    }
+
     bool was_set = false;
-    if (sClientRunning) {
-        uint8_t idx = luaL_checknumber(L, 1);
-        switch (idx) {
-        case 0:
-            sClient->setZone(soundplane::Zone::presetChromatic());
-            was_set = true;
-            break;
-        case 1:
-            sClient->setZones(soundplane::Zone::presetRowsInFourths());
-            was_set = true;
-            break;
-        case 2:
-            sClient->setZones(soundplane::Zone::presetRowsInOctaves());
-            was_set = true;
-            break;
-        }
+    uint8_t idx = luaL_checknumber(L, 1);
+    switch (idx) {
+    case 0:
+        sClient->setZone(soundplane::Zone::presetChromatic());
+        // sClient->setZone(soundplane::ZoneSpec::presetChromatic());
+        was_set = true;
+        break;
+    case 1:
+        sClient->setZones(soundplane::Zone::presetRowsInFourths());
+        was_set = true;
+        break;
+    case 2:
+        sClient->setZones(soundplane::Zone::presetRowsInOctaves());
+        was_set = true;
+        break;
     }
 
     lua_pushboolean(L, was_set);
     return 1;
+}
+
+static int spn_client_set_zones(lua_State *L) {
+    std::vector<soundplane::Zone> zones;
+
+    if (!lua_istable(L, -1)) {
+        return luaL_error(L, "expected a table of zones");
+    }
+
+    if (!sClientRunning) {
+        return luaL_error(L, "client not running");
+    }
+
+    lua_Integer num_zones = luaL_len(L, -1);
+    for (int i = 1; i <= num_zones; i++) {
+        lua_geti(L, -1, 1);
+        spn_zone_t *z = spn_zone_check(L, -1);
+        zones.push_back(soundplane::Zone::fromSpec(*(z->spec)));
+        lua_pop(L, 1);
+    }
+
+    if (zones.size() > 0) {
+        sClient->setZones(zones);
+    } else {
+        return luaL_error(L, "no zones specifications provided");
+    }
+
+    return 0;
 }

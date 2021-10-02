@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Zone.h"
+#include "ZoneSpec.h"
 
 #include "lua.h"
 
 typedef struct {
-    soundplane::Zone *zone;
+    soundplane::ZoneSpec *spec;
     bool is_owner;
 } spn_zone_t;
 
 int spn_zone_open(lua_State *L);
-int spn_zone_new(lua_State *L, soundplane::Zone *z);
+int spn_zone_new(lua_State *L, soundplane::ZoneSpec *spec, bool is_owner);
 spn_zone_t *spn_zone_check(lua_State *L, int arg);

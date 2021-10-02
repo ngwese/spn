@@ -14,8 +14,8 @@ static int spn_touch_equals(lua_State *L);
 //
 // touch object methods
 //
-static const char *spn_touch_modulename = "spn";
-static const char *spn_touch_classname = "spn.Touch";
+static const char *spn_touch_modulename = "touch";
+static const char *spn_touch_classname = "touch.Touch";
 
 // clang-format off
 static luaL_Reg spn_touch_methods[] = {
