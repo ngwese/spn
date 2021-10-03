@@ -12,6 +12,7 @@ static int spn_zone_name(lua_State *L);
 static int spn_zone_base_note(lua_State *L);
 static int spn_zone_bounds(lua_State *L);
 static int spn_zone_type(lua_State *L);
+static int spn_zone_control_numbers(lua_State *L);
 
 static int spn_zone_build(lua_State *L);
 
@@ -30,6 +31,7 @@ static luaL_Reg spn_zone_methods[] = {
     {"base_note", spn_zone_base_note},
     {"bounds", spn_zone_bounds},
     {"type", spn_zone_type},
+    {"control_numbers", spn_zone_control_numbers},
     {NULL, NULL}
 };
 
@@ -101,7 +103,7 @@ static int spn_zone_base_note(lua_State *L) {
 
 static int spn_zone_bounds(lua_State *L) {
     spn_zone_t *z = spn_zone_check(L, 1);
-    MLRect bounds = z->spec->getBounds();
+    const MLRect &bounds = z->spec->getBounds();
     lua_newtable(L);
     // x1
     lua_pushnumber(L, bounds.left());
@@ -124,6 +126,20 @@ static int spn_zone_type(lua_State *L) {
     return 1;
 }
 
+static int spn_zone_control_numbers(lua_State *L) {
+    spn_zone_t *z = spn_zone_check(L, 1);
+    lua_newtable(L);
+    lua_pushnumber(L, z->spec->getController1());
+    lua_seti(L, -2, 1);
+    // y1
+    lua_pushnumber(L, z->spec->getController2());
+    lua_seti(L, -2, 2);
+    // width
+    lua_pushnumber(L, z->spec->getController3());
+    lua_seti(L, -2, 3);
+    return 1;
+}
+
 //
 // {
 //   name = "something",
@@ -136,7 +152,7 @@ static int spn_zone_build(lua_State *L) {
     luaL_checktype(L, 1, LUA_TTABLE);
 
     // bounds
-    lua_getfield(L, -1, "bounds");
+    lua_getfield(L, 1, "bounds");
     luaL_checktype(L, -1, LUA_TTABLE);
 
     // x1
@@ -157,7 +173,7 @@ static int spn_zone_build(lua_State *L) {
     uint8_t width = lua_tointeger(L, -1);
     lua_pop(L, 1);
 
-    // y1
+    // height
     lua_geti(L, -1, 4);
     luaL_checktype(L, -1, LUA_TNUMBER);
     uint8_t height = lua_tointeger(L, -1);
@@ -165,26 +181,26 @@ static int spn_zone_build(lua_State *L) {
 
     lua_pop(L, 1); // bounds table
 
-    // start_note (optional)
-    lua_getfield(L, -1, "start_note");
-    uint8_t start_note = 60;
-    if (lua_isinteger(L, -1)) {
-        start_note = lua_tointeger(L, -1);
-    }
-    lua_pop(L, 1);
-
     // name
-    lua_getfield(L, -1, "name");
+    lua_getfield(L, 1, "name");
     luaL_checktype(L, -1, LUA_TSTRING);
     const char *zone_name = lua_tostring(L, -1);
     // don't pop so name will remain valid
 
     // type
-    lua_getfield(L, -2, "type");
+    lua_getfield(L, 1, "type");
     luaL_checktype(L, -1, LUA_TSTRING);
     const char *zone_type = lua_tostring(L, -1);
 
     if (strcmp(zone_type, "note_row") == 0) {
+        // start_note (optional)
+        lua_getfield(L, 1, "start_note");
+        uint8_t start_note = 60;
+        if (lua_isinteger(L, -1)) {
+            start_note = lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+
         // FIXME: this is ugly, first build the zone (copy 1) so that zone_name
         // remains valid
         auto spec = new soundplane::ZoneSpec();
@@ -192,12 +208,93 @@ static int spn_zone_build(lua_State *L) {
                                                    height, start_note);
         // pop off type, name, and table arg
         lua_pop(L, 3);
+        spn_zone_new(L, spec, true /* is_owner */);
+        return 1;
+
+    } else if (strcmp(zone_type, "toggle") == 0) {
+        uint8_t ctrl1 = 0;
+        lua_getfield(L, 1, "ctrl1");
+        if (lua_isinteger(L, -1)) {
+            ctrl1 = lua_tointeger(L, -1);
+        } else {
+            return luaL_error(L, "expected 'ctrl1' to be an integer");
+        }
+        lua_pop(L, 1);
+
+        auto spec = new soundplane::ZoneSpec();
+        *spec = soundplane::ZoneSpec::buildToggle(zone_name, x1, y1, width,
+                                                  height, ctrl1);
+        // pop off type, name, and table arg
+        lua_pop(L, 3);
         // push on new user data (copy 2)
         spn_zone_new(L, spec, true /* is_owner */);
         return 1;
-    }
 
-    // unhandled or unknown zone type
+    } else if (strcmp(zone_type, "xy") == 0) {
+        uint8_t ctrl1 = 0;
+        uint8_t ctrl2 = 0;
+
+        lua_getfield(L, 1, "ctrl1");
+        if (lua_isinteger(L, -1)) {
+            ctrl1 = lua_tointeger(L, -1);
+        } else {
+            return luaL_error(L, "expected 'ctrl1' to be an integer");
+        }
+        lua_pop(L, 1);
+
+        lua_getfield(L, 1, "ctrl2");
+        if (lua_isinteger(L, -1)) {
+            ctrl2 = lua_tointeger(L, -1);
+        } else {
+            return luaL_error(L, "expected 'ctrl2' to be an integer");
+        }
+        lua_pop(L, 1);
+
+        auto spec = new soundplane::ZoneSpec();
+        *spec = soundplane::ZoneSpec::buildXY(zone_name, x1, y1, width, height,
+                                              ctrl1, ctrl2);
+        // pop off type, name, and table arg
+        lua_pop(L, 3);
+        spn_zone_new(L, spec, true /* is_owner */);
+        return 1;
+
+    } else if (strcmp(zone_type, "x") == 0) {
+        uint8_t ctrl1 = 0;
+
+        lua_getfield(L, 1, "ctrl1");
+        if (lua_isinteger(L, -1)) {
+            ctrl1 = lua_tointeger(L, -1);
+        } else {
+            return luaL_error(L, "expected 'ctrl1' to be an integer");
+        }
+        lua_pop(L, 1);
+
+        auto spec = new soundplane::ZoneSpec();
+        *spec = soundplane::ZoneSpec::buildX(zone_name, x1, y1, width, height,
+                                             ctrl1);
+        // pop off type, name, and table arg
+        lua_pop(L, 3);
+        spn_zone_new(L, spec, true /* is_owner */);
+        return 1;
+    } else if (strcmp(zone_type, "y") == 0) {
+        uint8_t ctrl1 = 0;
+
+        lua_getfield(L, 1, "ctrl1");
+        if (lua_isinteger(L, -1)) {
+            ctrl1 = lua_tointeger(L, -1);
+        } else {
+            return luaL_error(L, "expected 'ctrl1' to be an integer");
+        }
+        lua_pop(L, 1);
+
+        auto spec = new soundplane::ZoneSpec();
+        *spec = soundplane::ZoneSpec::buildY(zone_name, x1, y1, width, height,
+                                             ctrl1);
+        // pop off type, name, and table arg
+        lua_pop(L, 3);
+        spn_zone_new(L, spec, true /* is_owner */);
+        return 1;
+    }
 
     // pop off type, name, and table arg
     lua_pop(L, 3);

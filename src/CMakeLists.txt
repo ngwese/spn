@@ -17,6 +17,7 @@ include_directories(${LIBLUA_INCLUDE_DIRS})
 #
 set(SOURCE_FILES
   lua_common.cpp
+  SPNControlPool.cpp
   SPNTouchPool.cpp
   SPNOutput.cpp
   spn_touch.cpp

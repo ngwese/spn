@@ -1,5 +1,7 @@
 
 #include "SPNOutput.h"
+#include "SPNControl.h"
+#include "SPNControlPool.h"
 #include "SPNFrame.h"
 #include "SPNTouch.h"
 #include "SPNTouchPool.h"
@@ -64,11 +66,31 @@ static void spn_touch_weave_op(lua_State *lvm, void *value, void *context) {
     SPNTouchPool::destroy(t);
 }
 
+static void spn_control_weave_op(lua_State *lvm, void *value, void *context) {
+    SPNControl *c = static_cast<SPNControl *>(value);
+    _push_module_func(lvm, "spn", "handlers", "control");
+    lua_pushstring(lvm, c->name.getUTF8Ptr());
+    lua_pushnumber(lvm, c->x);
+    lua_pushnumber(lvm, c->y);
+    lua_pushnumber(lvm, c->z);
+    lua_pushinteger(lvm, c->n1);
+    lua_pushinteger(lvm, c->n2);
+    lua_pcall(lvm, 6, 0,
+              0); // one argument, zero results, default error message
+    SPNControlPool::destroy(c);
+}
+
 static void spn_null_free_op(void *value, void *context) {}
 
 static struct event_custom_ops spn_touch_ops = {
     .type_name = "spn_touch",
     .weave = &spn_touch_weave_op,
+    .free = &spn_null_free_op,
+};
+
+static struct event_custom_ops spn_control_ops = {
+    .type_name = "spn_control",
+    .weave = &spn_control_weave_op,
     .free = &spn_null_free_op,
 };
 
@@ -108,7 +130,12 @@ void SPNOutput::processTouch(int i, int offset, const Touch &t) {
 
 void SPNOutput::processController(int zoneID, int offset,
                                   const ZoneMessage &m) {
-    // TODO:
+    if (m.active) {
+        SPNControl *value = SPNControlPool::construct(m.name, m.x, m.y, m.z,
+                                                      m.number1, m.number2);
+        union event_data *ev = event_custom_new(&spn_control_ops, value, NULL);
+        event_post(ev);
+    }
 }
 
 void SPNOutput::endOutputFrame() {
