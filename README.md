@@ -12,7 +12,15 @@ soundplane for norns
 % make
 ```
 
-once built, the `spn` directory within the build directory is a "mod" project which can be copied into `~/dust/code` then enable the mod via the `SYSTEM > MODS` menu and restart.
+the built `spn` directory is structured as a "mod" project. to install it run
+either:
+
+- `make install-zip` to build a zip file which is suitable for
+  distribution/installation via `maiden`
+- `make install-dust` to copy the built mod into `/home/we/dust/code/spn`
+
+once installed the mod needs to be enabled via the `SYSTEM > MODS` menu and then
+`SYSTEM > RESTART` used to pick up mod.
 
 ## using
 
