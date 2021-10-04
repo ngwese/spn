@@ -24,12 +24,20 @@ add_custom_target(copy-mod ALL COMMAND
 )
 
 add_custom_target(copy-extension ALL COMMAND
-    ${CMAKE_COMMAND} -E copy $<TARGET_FILE:lua-module> "${MOD_OUTPUT_PATH}/lib/"
+    ${CMAKE_COMMAND} -E copy $<TARGET_FILE:lua-extension> "${MOD_OUTPUT_PATH}/lib/"
 )
 add_dependencies(copy-extension copy-mod)
 
-add_custom_target(zip-mod ALL COMMAND
+add_custom_target(install-zip COMMAND
     ${CMAKE_COMMAND} -E tar "cfv" "${MOD_OUTPUT_PATH}.zip" --format=zip
         "${MOD_OUTPUT_PATH}"
 )
-add_dependencies(zip-mod copy-extension copy-mod)
+add_dependencies(install-zip copy-extension copy-mod)
+
+
+add_custom_target(install-dust COMMAND
+    ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}
+        "/home/we/dust/code/${CMAKE_PROJECT_NAME}"
+)
+add_dependencies(install-dust copy-extension copy-mod)

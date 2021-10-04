@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2)
 
 set(LUA_MODULE_NAME "_spn")
 
-project(lua-module CXX)
+project(lua-extension CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3")
@@ -25,12 +25,12 @@ set(SOURCE_FILES
   spn_module.cpp
 )
 
-add_library(lua-module MODULE ${SOURCE_FILES})
-set_target_properties(lua-module PROPERTIES
+add_library(lua-extension MODULE ${SOURCE_FILES})
+set_target_properties(lua-extension PROPERTIES
   PREFIX ""     # strip `lib` prefix
   OUTPUT_NAME "${LUA_MODULE_NAME}"
 )
-target_link_libraries(lua-module soundplaneclient)
+target_link_libraries(lua-extension soundplaneclient)
 
 set(NORNS_SOURCE_DIR "${CMAKE_SOURCE_DIR}/dep/norns")
-target_include_directories(lua-module PUBLIC "${NORNS_SOURCE_DIR}/matron/src")
+target_include_directories(lua-extension PUBLIC "${NORNS_SOURCE_DIR}/matron/src")
