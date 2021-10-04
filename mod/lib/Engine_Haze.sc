@@ -19,6 +19,14 @@ Engine_Haze : CroneEngine {
     this.addCommand(\stop, "i", { arg msg;
       kernel.stop(msg[1]);
     });
+
+    this.addCommand(\stop_all, "", { arg msg;
+      kernel.stopAll();
+    });
+
+    this.addCommand(\voices, "i", { arg msg;
+      kernel.allocVoices(msg[1]);
+    });
   }
 
   free {

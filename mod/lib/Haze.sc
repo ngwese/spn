@@ -20,12 +20,12 @@ Haze {
   var <voiceStarted;
 
   // Create and initialize a new Haze instance on the given server
-  *new { arg server, group, voiceCount=8, out=0;
-    ^super.new.init(server, group, voiceCount, out);
+  *new { arg server, group, out=0, voiceCount=8;
+    ^super.new.init(server, group, out, voiceCount);
   }
 
   // Initialize class and define server side resources
-  init { arg argServer, argGroup, argVoiceCount, argOut;
+  init { arg argServer, argGroup, argOut, argVoiceCount;
     var serverInitialized = Condition.new;
 
     server = argServer;
@@ -128,6 +128,10 @@ Haze {
   stop {
     arg voice=0;
     voices[voice].stop;
+  }
+
+  stopAll {
+    voices.do({arg v; v.stop});
   }
 
 }
