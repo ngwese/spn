@@ -21,8 +21,8 @@ local actions = {}
 function actions.touch(t, x, y, z, note, state)
   -- print(t, x, y, z, note, state)
 
-  engine.touch(t - 1, mu.note_num_to_freq(note), z, y)  
-  
+  engine.touch(t - 1, mu.note_num_to_freq(note), z, y)
+
   local this = touches[t]
   -- transform the touch into screen space
   this.x = util.linlin(0, 1, 0, 128, x)
@@ -73,6 +73,8 @@ function init()
       clock.sleep(interval)
     end
   end)
+
+  -- params:bang()
 end
 
 function cleanup()

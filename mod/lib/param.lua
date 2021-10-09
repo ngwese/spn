@@ -1,3 +1,5 @@
+local fmt = require('formatters')
+
 local function add_params(group, name)
   local name = name or 'SPN'
   if group then
@@ -6,6 +8,7 @@ local function add_params(group, name)
     params:add_separator(name)
   end
 
+  -- NOTE: defaults should match soundplaneclient::Client::setAllPropertiesToDefault()
   params:add{type = 'option', id = 'spn_zone_preset', name = 'zone preset',
     options = {'chromatic', 'row fourths', 'row octaves'},
     default = 1,
@@ -21,7 +24,7 @@ local function add_params(group, name)
   }
   params:add{type = 'option', id = 'spn_quantize', name = 'quantize',
     options = {'off', 'on'},
-    default = 1,
+    default = 2,
     action = function(v)
       spn.client.set_property('quantize', v - 1)
     end
@@ -47,7 +50,8 @@ local function add_params(group, name)
     end
   }
   params:add{type = 'control', id = 'spn_vibrato', name = 'vibrato',
-    controlspec = controlspec.new(0.0, 1.0, 'lin', 0, 0, ''),
+    controlspec = controlspec.new(0.0, 1.0, 'lin', 0, 0.5, '', 0.01),
+    formatters = fmt.round(0.01),
     action = function(v)
       spn.client.set_property('vibrato', v)
     end
@@ -65,25 +69,29 @@ local function add_params(group, name)
     end
   }
   params:add{type = 'control', id = 'spn_z_thresh', name = 'z thresh',
-    controlspec = controlspec.new(0.0, 0.10, 'lin', 0, 0, ''),
+    controlspec = controlspec.new(0.0, 0.10, 'lin', 0, 0.05, '', 0.01),
+    formatters = fmt.round(0.01),
     action = function(v)
       spn.client.set_property('z_thresh', v)
     end
   }
   params:add{type = 'control', id = 'spn_z_scale', name = 'z scale',
-    controlspec = controlspec.new(0.25, 5, 'lin', 0, 0, ''),
+    controlspec = controlspec.new(0.25, 5, 'lin', 0, 1.0, ''),
+    formatters = fmt.round(0.01),
     action = function(v)
       spn.client.set_property('z_scale', v)
     end
   }
   params:add{type = 'control', id = 'spn_z_curve', name = 'z curve',
-    controlspec = controlspec.new(0.0, 1.0, 'lin', 0, 0, ''),
+    controlspec = controlspec.new(0.0, 1.0, 'lin', 0, 0.5, '', 0.01),
+    formatters = fmt.round(0.01),
     action = function(v)
       spn.client.set_property('z_curve', v)
     end
   }
   params:add{type = 'control', id = 'spn_hysteresis', name = 'hysteresis',
-    controlspec = controlspec.new(0.01, 1.0, 'lin', 0, 0, ''),
+    controlspec = controlspec.new(0.01, 1.0, 'lin', 0, 0.5, '', 0.01),
+    formatters = fmt.round(0.01),
     action = function(v)
       spn.client.set_property('hysteresis', v)
     end
@@ -103,7 +111,7 @@ local function add_params(group, name)
   }
   params:add{type = 'trigger', id = 'spn_calibrate', name = 'calibrate',
     action = function()
-      print('TODO: trigger calibrate')
+      spn.client.calibrate()
     end
   }
 end

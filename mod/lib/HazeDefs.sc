@@ -14,7 +14,7 @@ HazeDefs {
       SynthDef(\haze_sine, {
         arg out=0, hz=300, amp=0.5, mod=0.5;
         var sig = SinOsc.ar(hz, mul: 0.3);
-        Out.ar(out, sig * amp);
+        Out.ar(out, sig * OnePole.kr(amp, 0.1));
       })
     );
 

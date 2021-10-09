@@ -43,6 +43,7 @@ static int spn_client_set_property(lua_State *L);
 static int spn_client_get_property(lua_State *L);
 static int spn_client_zone_preset(lua_State *L);
 static int spn_client_set_zones(lua_State *L);
+static int spn_client_calibrate(lua_State *L);
 
 //
 // module definition
@@ -64,6 +65,7 @@ static luaL_Reg func[] = {
     {"get_property", spn_client_get_property},
     {"zone_preset", spn_client_zone_preset},
     {"set_zones", spn_client_set_zones},
+    {"calibrate", spn_client_calibrate},
     {NULL, NULL}
 };
 // clang-format on
@@ -208,5 +210,13 @@ static int spn_client_set_zones(lua_State *L) {
         return luaL_error(L, "no zones specifications provided");
     }
 
+    return 0;
+}
+
+static int spn_client_calibrate(lua_State *L) {
+    if (!sClientRunning) {
+        return luaL_error(L, "client not running");
+    }
+    sClient->beginCalibrate();
     return 0;
 }
