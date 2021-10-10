@@ -73,7 +73,7 @@ Haze {
       serverInitialized.wait;
 
       Post << "Haze.init: setting default configuration...\n";
-      voiceType = \haze_sine;
+      voiceType = \haze_three;
 
       Post << "Haze.init: allocating voices...\n";
       this.allocVoices(argVoiceCount);
@@ -172,6 +172,11 @@ HazeVoice {
     modBus = Bus.control(server, 1);
     ampBus = Bus.control(server, 1);
 
+    // set controls to something reasonable so DynKlank doesn't blow up
+    pitchBus.set(440);
+    modBus.set(0.5);
+    ampBus.set(0);
+
     // create a group to contain the synths to shape the voice and write to the output
     shapeGroup = Group.after(voiceGroup);
     shapeAmpBus = Bus.control(server, 1);
@@ -255,7 +260,13 @@ HazeVoice {
 
 ~f.allocVoices(1);
 
-~f.touch(0, 400, 1, 0.5);
+~f.touch(0, 400, 0.2, 0.5);
+~f.touch(0, 400, 0.5, 0.5);
+~f.touch(0, 500, 0.7, 0.5);
+~f.touch(0, 500, 0.5, 0.1);
+~f.touch(0, 500, 0.5, 0.7);
+
+~f.touch(0, 440, 1, 0.5);
 ~f.stop(0);
 
 ~f.voices[0]
