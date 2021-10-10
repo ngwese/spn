@@ -62,7 +62,7 @@ HazeDefs {
 
         noiseFreqs = [hz, hz * 0.5];
         noiseRingTimes = [1.4, 1];
-        noise = Saw.ar(hz + PinkNoise.kr(8), 0.0002) + PinkNoise.ar(0.003);
+        noise = Saw.ar((hz * 0.25) + PinkNoise.kr(8), 0.0005) + PinkNoise.ar(0.003);
         noise = DynKlank.ar(`[noiseFreqs, nil, noiseRingTimes], noise);
         //noise = DynKlank.ar(`[[hz], nil, [1]], PinkNoise.ar(0.007));
 
