@@ -27,56 +27,75 @@ using namespace soundplane;
 // custom event glue
 //
 
-static inline void _push_module_func(lua_State *lvm, const char *module,
+static int _report(lua_State *lvm, int status) {
+    if (status != LUA_OK) {
+        const char *msg = lua_tostring(lvm, -1);
+        lua_writestringerror("%s\n", msg);
+        lua_pop(lvm, 1);
+    }
+    return status;
+}
+
+static inline bool _push_module_func(lua_State *lvm, const char *module,
                                      const char *field, const char *func) {
     lua_getglobal(lvm, module);
     lua_getfield(lvm, -1, field);
     lua_remove(lvm, -2);
     lua_getfield(lvm, -1, func);
     lua_remove(lvm, -2);
+
+    if (!lua_isfunction(lvm, 1)) {
+        // get rid of whatever was found
+        lua_pop(lvm, 1);
+        return false;
+    }
+    return true;
 }
 
 static void spn_frame_begin_weave_op(lua_State *lvm, void *value,
                                      void *context) {
     uint32_t time = reinterpret_cast<uint32_t>(value);
-    _push_module_func(lvm, "spn", "handlers", "frame_begin");
-    lua_pushinteger(lvm, time); // 1s based index for lua
-    lua_pcall(lvm, 1, 0,
-              0); // one argument, zero results, default error message
+    if (_push_module_func(lvm, "spn", "handlers", "frame_begin")) {
+        lua_pushinteger(lvm, time);
+        // one argument, zero results, default error message
+        _report(lvm, lua_pcall(lvm, 1, 0, 0));
+    }
 }
 
 static void spn_frame_end_weave_op(lua_State *lvm, void *value, void *context) {
-    _push_module_func(lvm, "spn", "handlers", "frame_end");
-    lua_pcall(lvm, 0, 0,
-              0); // one argument, zero results, default error message
+    if (_push_module_func(lvm, "spn", "handlers", "frame_end")) {
+        // zero argument, zero results, default error message
+        _report(lvm, lua_pcall(lvm, 0, 0, 0));
+    }
 }
 
 static void spn_touch_weave_op(lua_State *lvm, void *value, void *context) {
     SPNTouch *t = static_cast<SPNTouch *>(value);
-    _push_module_func(lvm, "spn", "handlers", "touch");
-    // spn_touch_new(lvm, t, true /* is_owned */);
-    lua_pushinteger(lvm, t->index + 1); // 1s based index for lua
-    lua_pushnumber(lvm, t->x);
-    lua_pushnumber(lvm, t->y);
-    lua_pushnumber(lvm, t->z);
-    lua_pushnumber(lvm, t->note);
-    lua_pushinteger(lvm, t->state);
-    lua_pcall(lvm, 6, 0,
-              0); // one argument, zero results, default error message
+    if (_push_module_func(lvm, "spn", "handlers", "touch")) {
+        lua_pushinteger(lvm, t->index + 1); // 1s based index for lua
+        lua_pushnumber(lvm, t->x);
+        lua_pushnumber(lvm, t->y);
+        lua_pushnumber(lvm, t->z);
+        lua_pushnumber(lvm, t->note);
+        lua_pushinteger(lvm, t->state);
+        // six arguments, zero results, default error message
+        _report(lvm, lua_pcall(lvm, 6, 0, 0));
+    }
     SPNTouchPool::destroy(t);
 }
 
 static void spn_control_weave_op(lua_State *lvm, void *value, void *context) {
     SPNControl *c = static_cast<SPNControl *>(value);
-    _push_module_func(lvm, "spn", "handlers", "control");
-    lua_pushstring(lvm, c->name.getUTF8Ptr());
-    lua_pushnumber(lvm, c->x);
-    lua_pushnumber(lvm, c->y);
-    lua_pushnumber(lvm, c->z);
-    lua_pushinteger(lvm, c->n1);
-    lua_pushinteger(lvm, c->n2);
-    lua_pcall(lvm, 6, 0,
-              0); // one argument, zero results, default error message
+    if (_push_module_func(lvm, "spn", "handlers", "control")) {
+        lua_pushstring(lvm, c->name.getUTF8Ptr());
+        lua_pushnumber(lvm, c->x);
+        lua_pushnumber(lvm, c->y);
+        lua_pushnumber(lvm, c->z);
+        lua_pushinteger(lvm, c->n1);
+        lua_pushinteger(lvm, c->n2);
+        // six arguments, zero results, default error message
+        _report(lvm, lua_pcall(lvm, 6, 0, 0));
+    }
     SPNControlPool::destroy(c);
 }
 
