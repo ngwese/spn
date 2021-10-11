@@ -14,11 +14,17 @@ local spn_null_handlers = function()
   }
 end
 
+local spn_set_max_touches = function(n)
+  spn.client.set_property('max_touches', n)
+  spn.max_touches = n
+end
+
 local spn_init = function()
   -- ensure the global spn table has the goods
   spn = {
     client = require '_spn',
     handlers = spn_null_handlers(),
+    set_max_touches = spn_set_max_touches,
     add_params = spn_params.add_params,
   }
 end

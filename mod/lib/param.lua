@@ -1,9 +1,28 @@
 local fmt = require('formatters')
 
+local function add_carrier_params(group, name)
+  local name = name or 'carriers'
+  if group then
+    params:add_group(name, 32)
+  else
+    params:add_seperator(name)
+  end
+  for i = 1,32 do
+    local id = 'spn_carrier_toggle' .. i
+    params:add{type = 'option', id = id, name = 'carrier ' .. i,
+      options = {'off', 'on'},
+      default = 2,
+      action = function(v)
+        spn.client.set_property('carrier_toggle' .. (i-1), v-1)
+      end
+    }
+  end
+end
+
 local function add_params(group, name)
   local name = name or 'SPN'
   if group then
-    params:add_group(name, 16)
+    params:add_group(name, 17)
   else
     params:add_separator(name)
   end
@@ -19,7 +38,7 @@ local function add_params(group, name)
   params:add{type = 'number', id = 'spn_max_touches', name = 'max touches',
     min = 1, max = 16, default = 8,
     action = function(v)
-      spn.client.set_property('max_touches', v)
+      spn.set_max_touches(v)
     end
   }
   params:add{type = 'option', id = 'spn_quantize', name = 'quantize',
@@ -109,11 +128,13 @@ local function add_params(group, name)
       spn.client.set_property('verbose', v - 1)
     end
   }
+  add_carrier_params(true)
   params:add{type = 'trigger', id = 'spn_calibrate', name = 'calibrate',
     action = function()
       spn.client.calibrate()
     end
   }
+
 end
 
 return {

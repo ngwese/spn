@@ -2,8 +2,6 @@ mu = require('musicutil')
 
 engine.name = 'Haze'
 
-touches_max = nil
-touches_hist = 16
 touches = {}
 dirty = false
 redraw_clock = nil
@@ -20,6 +18,7 @@ local actions = {}
 --    component represents semitone pitch bend
 function actions.touch(t, x, y, z, note, state)
   -- print(t, x, y, z, note, state)
+  if t > spn.max_touches then return end
 
   engine.touch(t - 1, mu.note_num_to_freq(note), z, y)
 
@@ -37,7 +36,7 @@ function redraw()
   if not dirty then return end
 
   screen.clear()
-  for i=1,touches_max do
+  for i=1,spn.max_touches do
     local touch = touches[i]
     local x, y, z = touch.x, touch.y, touch.z
     local state = touch.state
@@ -55,12 +54,12 @@ end
 
 
 function init()
-  spn.add_params(false)
-  spn.handlers = actions
   spn.client.start()
+  spn.add_params(false)
+  spn.set_max_touches(8)
+  spn.handlers = actions
 
-  touches_max = spn.client.get_property("max_touches")
-  for i=1,touches_max do
+  for i=1,spn.max_touches do
     touches[i] = {}
   end
 

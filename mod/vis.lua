@@ -1,4 +1,5 @@
-touches_max = nil
+engine.name = 'None'
+
 touches_hist = 16
 touches_off = {}
 touches = {}
@@ -16,6 +17,8 @@ local actions = {}
 -- @tparam number note note number for x within zone, fractional
 --    component represents semitone pitch bend
 function actions.touch(t, x, y, z, note, state)
+  if t > spn.max_touches then return end
+
   local off = (touches_off[t] % touches_hist) + 1
   local this = touches[t][off]
   -- transform the touch into screen space
@@ -66,12 +69,12 @@ end
 
 
 function init()
-  spn.add_params(false)
-  spn.handlers = actions
   spn.client.start()
+  spn.add_params(false)
+  spn.set_max_touches(8)
+  spn.handlers = actions
 
-  touches_max = spn.client.get_property("max_touches")
-  for i=1,touches_max do
+  for i=1,spn.max_touches do
     touches_off[i] = 1
     touches[i] = {}
     for h=1,touches_hist do
