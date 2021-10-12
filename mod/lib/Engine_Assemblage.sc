@@ -1,4 +1,4 @@
-Engine_Haze : CroneEngine {
+Engine_Assemblage : CroneEngine {
   var <kernel;
 
   *new { arg context, doneCallback;
@@ -6,7 +6,7 @@ Engine_Haze : CroneEngine {
 	}
 
   alloc {
-    kernel = Haze.new(this.context.server, this.context.xg, this.context.out_b);
+    kernel = Assemblage.new(this.context.server, this.context.xg, this.context.out_b);
 
     context.server.sync;
 

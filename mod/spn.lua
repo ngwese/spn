@@ -1,6 +1,6 @@
 mu = require('musicutil')
 
-engine.name = 'Haze'
+engine.name = 'Assemblage'
 
 touches = {}
 dirty = false

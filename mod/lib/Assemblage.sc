@@ -1,4 +1,4 @@
-Haze {
+Assemblage {
   var <server;
 
   var <parentGroup;
@@ -19,7 +19,7 @@ Haze {
   var <voices;
   var <voiceStarted;
 
-  // Create and initialize a new Haze instance on the given server
+  // Create and initialize a new Assemblage instance on the given server
   *new { arg server, group, out=0, voiceCount=8;
     ^super.new.init(server, group, out, voiceCount);
   }
@@ -38,12 +38,12 @@ Haze {
 
     voices = Array.new;
 
-    Post << "Haze.init: server = " << server << ", xg = " << parentGroup << ", out = " << outBus << "\n";
+    Post << "Assemblage.init: server = " << server << ", xg = " << parentGroup << ", out = " << outBus << "\n";
 
     fork {
-      Post << "Haze.init: sending defs...\n";
+      Post << "Assemblage.init: sending defs...\n";
 
-      HazeDefs.definitions.do({ arg d;
+      AssemblageDefs.definitions.do({ arg d;
         postln(" +" + d.name);
         d.send(server);
       });
@@ -53,7 +53,7 @@ Haze {
       serverInitialized.test = true;
       serverInitialized.signal;
 
-      Post << "Haze.init: server synced\n";
+      Post << "Assemblage.init: server synced\n";
     };
 
     // Control busses for global parameters which drive all voices (non per-note parameters)
@@ -72,13 +72,13 @@ Haze {
       // wait for defs and default buffers to land
       serverInitialized.wait;
 
-      Post << "Haze.init: setting default configuration...\n";
-      voiceType = \haze_three;
+      Post << "Assemblage.init: setting default configuration...\n";
+      voiceType = \assemblage_haze;
 
-      Post << "Haze.init: allocating voices...\n";
+      Post << "Assemblage.init: allocating voices...\n";
       this.allocVoices(argVoiceCount);
 
-      Post << "Haze.init: done\n";
+      Post << "Assemblage.init: done\n";
     };
   }
 
@@ -108,7 +108,7 @@ Haze {
       voices.do({arg v; v.free });
     });
 
-    voices = n.collectAs({ HazeVoice.new(
+    voices = n.collectAs({ AssemblageVoice.new(
       this.server,
       this.voicesGroup,
       voiceType: this.voiceType,
@@ -136,7 +136,7 @@ Haze {
 
 }
 
-HazeVoice {
+AssemblageVoice {
   var <voiceSynth;
   var <voiceType;
   var <voiceGroup;
@@ -160,7 +160,7 @@ HazeVoice {
   init {
     arg server, target, voiceType, out;
 
-    Post << "HazeVoice.init(" << server << ", " << target << ", " << out << ", "
+    Post << "AssemblageVoice.init(" << server << ", " << target << ", " << out << ", "
     << voiceType << ")\n";
 
     // create a group to contain the synths for the voice
@@ -185,7 +185,7 @@ HazeVoice {
     this.voiceType = voiceType;
 
     // scale voice ouput by amp env (after filter) and write to main bus
-    shapeType = \haze_place;  // TODO: fixed for now
+    shapeType = \assemblage_place;  // TODO: fixed for now
     shapeSynth = Synth.new(shapeType, [\out, out, \in, voiceBus], shapeGroup);
     shapeSynth.map(\amp, shapeAmpBus);
     shapeAmpBus.set(1);
@@ -253,7 +253,7 @@ HazeVoice {
 /*
 
 ~processGroup = Crone.context.xg;
-~f = Haze.new(s, ~processGroup, voiceCount: 2);
+~f = Assemblage.new(s, ~processGroup, voiceCount: 2);
 
 ~f.voiceCount;
 ~f.free
