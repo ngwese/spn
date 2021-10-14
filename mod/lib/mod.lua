@@ -25,7 +25,8 @@ local spn_init = function()
     client = require '_spn',
     handlers = spn_null_handlers(),
     set_max_touches = spn_set_max_touches,
-    add_params = spn_params.add_params,
+    add_touch_params = spn_params.add_touch_params,
+    add_voice_params = spn_params.add_voice_params,
   }
 end
 

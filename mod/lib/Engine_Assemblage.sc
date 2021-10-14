@@ -11,7 +11,7 @@ Engine_Assemblage : CroneEngine {
     context.server.sync;
 
     // voice, pitch (x), pressure (z), depth (y), x raw, gate
-    this.addCommand(\touch, "iffffi", { arg msg;
+    this.addCommand(\touch, "ifffff", { arg msg;
       kernel.touch(msg[1], msg[2], msg[3], msg[4], msg[5], msg[6]);
     });
 

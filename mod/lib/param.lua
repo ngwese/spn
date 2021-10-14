@@ -1,26 +1,63 @@
 local fmt = require('formatters')
 
-local function add_carrier_params(group, name)
-  local name = name or 'carriers'
+local function add_param_definitions(group, name, definitions)
   if group then
-    params:add_group(name, 32)
+    params:add_group(name, #definitions)
   else
-    params:add_seperator(name)
+    params:add_separator(name)
   end
+  for i,d in ipairs(definitions) do
+    params:add(d)
+  end
+end
+
+local function add_carrier_params(group, name)
+  local defs = {}
   for i = 1,32 do
     local id = 'spn_carrier_toggle' .. i
-    params:add{type = 'option', id = id, name = 'carrier ' .. i,
+    table.insert(defs, {
+      type = 'option', id = id, name = 'carrier ' .. i,
       options = {'off', 'on'},
       default = 2,
       action = function(v)
         spn.client.set_property('carrier_toggle' .. (i-1), v-1)
       end
-    }
+    })
   end
+  add_param_definitions(group, name, defs)
 end
 
-local function add_params(group, name)
-  local name = name or 'SPN'
+local function add_voice_params(group, name)
+  add_param_definitions(group, name, {
+    {
+      type = 'control',
+      id = 'barrel1',
+      name = 'i',
+      controlspec = controlspec.new(0.0, 1.0, 'lin', 0, 0.0, '', 0.01),
+      formatters = fmt.round(0.01),
+      action = function(v) engine.barrel1(v) end
+    },
+    {
+      type = 'control',
+      id = 'barrel2',
+      name = 'ii',
+      controlspec = controlspec.new(0.0, 1.0, 'lin', 0, 0.0, '', 0.01),
+      formatters = fmt.round(0.01),
+      action = function(v) engine.barrel2(v) end
+    },
+    {
+      type = 'control',
+      id = 'barrel3',
+      name = 'iii',
+      controlspec = controlspec.new(0.0, 1.0, 'lin', 0, 0.0, '', 0.01),
+      formatters = fmt.round(0.01),
+      action = function(v) engine.barrel3(v) end
+    },
+  })
+end
+
+local function add_touch_params(group, name)
+  local name = name or 'spn: touch'
   if group then
     params:add_group(name, 17)
   else
@@ -128,15 +165,15 @@ local function add_params(group, name)
       spn.client.set_property('verbose', v - 1)
     end
   }
-  add_carrier_params(true)
   params:add{type = 'trigger', id = 'spn_calibrate', name = 'calibrate',
     action = function()
       spn.client.calibrate()
     end
   }
-
 end
 
 return {
-  add_params = add_params,
+  add_touch_params = add_touch_params,
+  add_voice_params = add_voice_params,
+  add_carrier_params = add_carrier_params,
 }

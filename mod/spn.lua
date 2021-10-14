@@ -20,7 +20,8 @@ function actions.touch(t, x, y, z, note, state)
   -- print(t, x, y, z, note, state)
   if t > spn.max_touches then return end
 
-  engine.touch(t - 1, mu.note_num_to_freq(note), z, y)
+  local gate = state ~= 3 and 1 or 0
+  engine.touch(t - 1, mu.note_num_to_freq(note), z, y, x, gate)
 
   local this = touches[t]
   -- transform the touch into screen space
@@ -55,7 +56,8 @@ end
 
 function init()
   spn.client.start()
-  spn.add_params(false)
+  spn.add_voice_params(false, 'assemblage')
+  spn.add_touch_params(false, 'spn')
   spn.set_max_touches(8)
   spn.handlers = actions
 
