@@ -20,7 +20,7 @@ AssemblageDefs {
 
     voices.add(
       SynthDef(\assemblage_haze, {
-        arg out=0, hz=300, amp=0.5, mod=0.5;
+        arg out=0, hz=300, amp=0.5, mod=0.5, barrel1=0.0, barrel2=0.0, barrel3=1.0;
         var sig, tone, toneA, toneB, ampFinal, noiseAmpMap, noiseAmp, noise, noiseFreqs, noiseRingTimes;
 
         toneA = SinOsc.ar(hz, mul: 0.3);

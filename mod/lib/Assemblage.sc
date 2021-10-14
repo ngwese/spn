@@ -58,8 +58,9 @@ Assemblage {
 
     // Control busses for global parameters which drive all voices (non per-note parameters)
     globalDefaults = IdentityDictionary.with(
-    //   \cutoff -> 1200,
-    //   \resonance -> 0.0,
+       \barrel1 -> 0.0,
+       \barrel2 -> 0.0,
+       \barrel3 -> 0.0,
     );
 
     globalControls = globalDefaults.keys.collectAs({ arg n;
@@ -97,7 +98,8 @@ Assemblage {
     })
   }
 
-  setControl { arg name, value;
+  setControl {
+    arg name, value;
     globalControls[name].set(value);
   }
 
@@ -112,6 +114,7 @@ Assemblage {
       this.server,
       this.voicesGroup,
       voiceType: this.voiceType,
+      voiceControls: this.globalControls,
       out: this.outBus,
     ) }, Array);
   }
@@ -140,12 +143,15 @@ AssemblageVoice {
   var <voiceSynth;
   var <voiceType;
   var <voiceGroup;
+  var <voiceControls;
 
   var <voiceBus;
 
-  var <pitchBus;   // x
+  var <pitchBus;   // x (processed)
+  var <xBus;       // x
   var <modBus;     // y
   var <ampBus;     // z
+  var <gateBus;
 
   var <shapeSynth;
   var <shapeType;
@@ -153,24 +159,25 @@ AssemblageVoice {
 
   var <shapeAmpBus;
 
-  *new { arg server, target, voiceType, out=0;
-    ^super.new.init(server, target, voiceType, out);
+  *new { arg server, target, voiceType, out=0, voiceControls=nil;
+    ^super.new.init(server, target, voiceType, out, voiceControls);
   }
 
-  init {
-    arg server, target, voiceType, out;
-
+  init { arg server, target, voiceType, out, voiceControls_;
     Post << "AssemblageVoice.init(" << server << ", " << target << ", " << out << ", "
     << voiceType << ")\n";
 
     // create a group to contain the synths for the voice
     voiceGroup = Group.new(target);
     voiceBus = Bus.audio(server, 1);
+    voiceControls = voiceControls_;
 
     // create a voice specific control busses
     pitchBus = Bus.control(server, 1);
+    xBus = Bus.control(server, 1);
     modBus = Bus.control(server, 1);
     ampBus = Bus.control(server, 1);
+    gateBus = Bus.control(server, 1);
 
     // set controls to something reasonable so DynKlank doesn't blow up
     pitchBus.set(440);
@@ -189,30 +196,40 @@ AssemblageVoice {
     shapeSynth = Synth.new(shapeType, [\out, out, \in, voiceBus], shapeGroup);
     shapeSynth.map(\amp, shapeAmpBus);
     shapeAmpBus.set(1);
-
-    // map shared voice controls
-    // modGroup.map(\gate, gateBus);
-    // oscGroup.map(\hz, pitchBus);
+    // map the voice controls to the shaper
+    this.mapControls(shapeSynth, voiceControls);
   }
 
   voiceType_ { arg symbol;
     voiceType = symbol;
+    // cleanup existing synth
     if (voiceSynth.notNil) {
       voiceSynth.free;
       voiceSynth = nil;
     };
+    // start new one
     if (voiceType.notNil) {
       voiceSynth = Synth.new(voiceType, [\out, voiceBus.index], voiceGroup);
-      // FIXME: this isn't going to pick of the shared voice group mappings
-      voiceSynth.map(\hz, pitchBus, \amp, ampBus, \mod, modBus);
+      voiceSynth.map(\hz, pitchBus, \amp, ampBus, \mod, modBus, \x, xBus, \gate, gateBus);
+    };
+    // map global voice controls if any
+    this.mapControls(voiceSynth, voiceControls);
+  }
+
+  mapControls { arg synth, controls;
+    if (controls.notNil) {
+      controls.keys.do({ arg k;
+        synth.map(k, controls[k]);
+      });
     };
   }
 
-  touch {
-    arg hz, amp, mod;
+  touch { arg hz, amp, mod, xRaw, gate;
     pitchBus.set(hz);
     modBus.set(mod);
     ampBus.set(amp);
+    xBus.set(xRaw);
+    gateBus.set(gate);
 
     // Post << "  pitch: " << hz << "\n";
     // Post << "    amp: " << amp << "\n";
@@ -223,8 +240,7 @@ AssemblageVoice {
     ampBus.set(0);
   }
 
-  level {
-    arg amp;
+  level { arg amp;
     shapeAmpBus.set(amp);
   }
 
@@ -254,7 +270,7 @@ AssemblageVoice {
 
 ~processGroup = Crone.context.xg;
 ~f = Assemblage.new(s, ~processGroup, voiceCount: 2);
-
+~f.globalControls;
 ~f.voiceCount;
 ~f.free
 
@@ -270,5 +286,6 @@ AssemblageVoice {
 ~f.stop(0);
 
 ~f.voices[0]
+~f.voices[0].voiceControls
 
 */
