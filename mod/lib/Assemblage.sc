@@ -130,8 +130,8 @@ Assemblage {
   }
 
   touch {
-    arg voice=0, hz=300, amp=0.2, mod=0.5;
-    voices[voice].touch(hz, amp, mod);
+    arg voice=0, hz=300, amp=0.2, mod=0.5, xRaw=0, gate=0;
+    voices[voice].touch(hz, amp, mod, xRaw, gate);
   }
 
   stop {
@@ -187,8 +187,10 @@ AssemblageVoice {
 
     // set controls to something reasonable so DynKlank doesn't blow up
     pitchBus.set(440);
+    xBus.set(0);
     modBus.set(0.5);
     ampBus.set(0);
+    gateBus.set(0);
 
     // create a group to contain the synths to shape the voice and write to the output
     shapeGroup = Group.after(voiceGroup);
@@ -230,7 +232,7 @@ AssemblageVoice {
     };
   }
 
-  touch { arg hz, amp, mod, xRaw, gate;
+  touch { arg hz, amp, mod, xRaw=0, gate=0;
     pitchBus.set(hz);
     modBus.set(mod);
     ampBus.set(amp);
@@ -243,6 +245,7 @@ AssemblageVoice {
   }
 
   stop {
+    gateBus.set(0);
     ampBus.set(0);
   }
 
@@ -277,12 +280,19 @@ AssemblageVoice {
 ~processGroup = Crone.context.xg;
 ~f = Assemblage.new(s, ~processGroup, voiceCount: 2);
 ~f.globalControls;
+
+
+~f.setVoiceType(\assemblage_haze)
+~f.setVoiceType(\assemblage_tick)
+
+
 ~f.voiceCount;
-~f.free
+~f.free;
 
 ~f.allocVoices(1);
 
-~f.touch(0, 400, 0.2, 0.5);
+~f.touch(0, 400, 0.2, 0.5, 0, 1);
+~f.touch(0, 400, 0.2, 0.5, 0, 0);
 ~f.touch(0, 400, 0.5, 0.5);
 ~f.touch(0, 500, 0.7, 0.5);
 ~f.touch(0, 500, 0.5, 0.1);
