@@ -18,6 +18,7 @@ Assemblage {
 
   var <voices;
   var <voiceStarted;
+  var <voiceCount;
 
   // Create and initialize a new Assemblage instance on the given server
   *new { arg server, group, out=0, voiceCount=8;
@@ -27,6 +28,8 @@ Assemblage {
   // Initialize class and define server side resources
   init { arg argServer, argGroup, argOut, argVoiceCount;
     var serverInitialized = Condition.new;
+
+    voiceCount = argVoiceCount;
 
     server = argServer;
     parentGroup = if(argGroup.isNil, {server}, {argGroup});
@@ -104,13 +107,11 @@ Assemblage {
   }
 
   allocVoices {
-    arg n;
-
     if(voices.notNil, {
       voices.do({arg v; v.free });
     });
 
-    voices = n.collectAs({ AssemblageVoice.new(
+    voices = voiceCount.collectAs({ AssemblageVoice.new(
       this.server,
       this.voicesGroup,
       voiceType: this.voiceType,
@@ -119,7 +120,12 @@ Assemblage {
     ) }, Array);
   }
 
-  voiceCount {
+  setVoiceType { arg name;
+    voiceType = name;
+    this.allocVoices;
+  }
+
+  allocatedVoiceCount {
     ^voices.size;
   }
 

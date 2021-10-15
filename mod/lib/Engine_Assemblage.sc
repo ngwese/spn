@@ -40,6 +40,9 @@ Engine_Assemblage : CroneEngine {
       kernel.setControl(\barrel3, msg[1]);
     });
 
+    this.addCommand(\voice_type, "i", { arg msg;
+      kernel.setVoiceType(AssemblageDefs.voiceNames[msg[1]]);
+    });
   }
 
   free {

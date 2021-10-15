@@ -21,6 +21,7 @@ function actions.touch(t, x, y, z, note, state)
   if t > spn.max_touches then return end
 
   local gate = state ~= 3 and 1 or 0
+  -- print(gate)
   engine.touch(t - 1, mu.note_num_to_freq(note), z, y, x, gate)
 
   local this = touches[t]

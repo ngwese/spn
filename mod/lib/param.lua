@@ -27,8 +27,23 @@ local function add_carrier_params(group, name)
   add_param_definitions(group, name, defs)
 end
 
+-- MAINT: it would be great if these could be figured out dynamically
+local assemblage_voice_names = {
+  'sine',
+  'haze',
+  'tick',
+}
+
 local function add_voice_params(group, name)
   add_param_definitions(group, name, {
+    {
+      type = 'option',
+      id = 'voice_type',
+      name = 'voice',
+      options = assemblage_voice_names,
+      default = 2,
+      action = function(v) engine.voice_type(v - 1) end
+    },
     {
       type = 'control',
       id = 'barrel1',

@@ -48,6 +48,16 @@ AssemblageDefs {
       })
     );
 
+    voices.add(
+      SynthDef(\assemblage_tick, {
+        arg out=0, hz=300, amp=0.5, mod=0.5, gate=0, barrel1=0.0, barrel2=0.0, barrel3=1.0;
+        var sig;
+        sig = SinOsc.ar(hz, mul: 0.3);
+        sig = sig * Lag.kr(gate);
+        Out.ar(out, sig);
+      })
+    );
+
     //
     // Shapers
     //
