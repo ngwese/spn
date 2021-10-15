@@ -49,11 +49,17 @@ AssemblageDefs {
     );
 
     voices.add(
-      SynthDef(\assemblage_tick, {
+      SynthDef(\assemblage_chime, {
         arg out=0, hz=300, amp=0.5, mod=0.5, gate=0, barrel1=0.0, barrel2=0.0, barrel3=1.0;
-        var sig;
-        sig = SinOsc.ar(hz, mul: 0.3);
-        sig = sig * Lag.kr(gate);
+        var sig, ampEnv, pulseFreq, pulseTrain;
+
+        ampEnv = Env.adsr(releaseTime: LinLin.kr(mod, 0, 1, 2, 0.2));
+        pulseFreq = LinLin.kr(barrel1, dstlo: barrel2, dsthi: barrel3 * 12) * LinLin.kr(mod, 0, 1, 0.5, 2);
+        pulseTrain = LFPulse.kr(pulseFreq, iphase: LFNoise0.kr(10, mul: 0.5, add: 0.5), width: 0.2) * gate;
+        pulseTrain = Clip.kr(Trig.kr(gate) + pulseTrain);
+
+        sig = SinOsc.ar(hz, mul: 0.3) * Lag.kr(amp);
+        sig = sig * EnvGen.kr(ampEnv, pulseTrain);
         Out.ar(out, sig);
       })
     );

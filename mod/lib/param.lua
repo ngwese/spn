@@ -31,8 +31,10 @@ end
 local assemblage_voice_names = {
   'sine',
   'haze',
-  'tick',
+  'chime',
 }
+
+local assemblage_which_voice = 2 -- default
 
 local function add_voice_params(group, name)
   add_param_definitions(group, name, {
@@ -41,8 +43,14 @@ local function add_voice_params(group, name)
       id = 'voice_type',
       name = 'voice',
       options = assemblage_voice_names,
-      default = 2,
-      action = function(v) engine.voice_type(v - 1) end
+      default = assemblage_which_voice,
+      action = function(v) assemblage_which_voice = v end
+    },
+    {
+      type = 'trigger',
+      id = 'voice_load',
+      name = 'load',
+      action = function() engine.voice_type(assemblage_which_voice - 1) end,
     },
     {
       type = 'control',
