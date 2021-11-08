@@ -36,9 +36,50 @@ local spn_clean = function()
   end
 end
 
+
+--
+-- udev rules
+--
+-- non-class compliant usb devices are ignored by udev by default. in order for
+-- the soundplace hardware to be detected it must be allow listed. normally the
+-- udev rules installation is handled by the soundplacelib debian packaging but
+-- this driver is entirely self contained thus it needs to handle installation
+-- directly.
+--
+
+local rules_file = "59-soundplane.rules"
+local rules_dst = "/etc/udev/rules.d/" .. rules_file
+
+local spn_udev_rules_installed = function()
+  local f = io.open(rules_dst, "r")
+  if f ~= nil then
+    io.close(f)
+    return true
+  end
+
+  return false
+end
+
+local spn_install_udev_rules = function()
+  local rules_src = paths.code .. this_name .. "/lib/support/" .. rules_file
+
+  print("spn: installing udev rules to allow device detection")
+  local cmd_cp = "sudo cp -v " .. rules_src .. " " .. rules_dst
+  print("   >> '" .. cmd_cp .. "'")
+  os.execute(cmd_cp)
+
+  local cmd_reload = "sudo udevadm control --reload"
+  print("   >> '" .. cmd_reload .. "'")
+  os.execute(cmd_reload)
+  print("spn: udev rule installation complete")
+end
+
 local post_startup = function()
   -- extend the compile module path and load spn module globally
   package.cpath = package.cpath .. ";" .. paths.code .. this_name .. "/lib/?.so"
+  if not spn_udev_rules_installed() then
+    spn_install_udev_rules()
+  end
   spn_init()
 end
 
@@ -80,6 +121,8 @@ mod.menu.register(this_name, menu)
 -- api
 --
 
-local api = {}
+local api = {
+  install_udev_rules = spn_install_udev_rules,
+}
 
 return api
