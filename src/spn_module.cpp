@@ -198,7 +198,7 @@ static int spn_client_set_zones(lua_State *L) {
 
     lua_Integer num_zones = luaL_len(L, -1);
     for (int i = 1; i <= num_zones; i++) {
-        lua_geti(L, -1, 1);
+        lua_geti(L, -1, i);
         spn_zone_t *z = spn_zone_check(L, -1);
         zones.push_back(soundplane::Zone::fromSpec(*(z->spec)));
         lua_pop(L, 1);
