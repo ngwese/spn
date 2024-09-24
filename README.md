@@ -1,6 +1,12 @@
 # spn
 soundplane for norns
 
+## dependencies (build only)
+
+```sh
+sudo apt-get install libusb-1.0-0-dev liblua5.3-dev libboost-all-dev
+```
+
 ## building
 
 ```sh
