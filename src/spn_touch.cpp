@@ -59,6 +59,7 @@ static int spn_touch_free(lua_State *L) {
     if (t->is_owner) {
         SPNTouchPool::destroy(t->touch);
     }
+    return 0;
 }
 
 static int spn_touch_tostring(lua_State *L) {

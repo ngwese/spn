@@ -70,6 +70,7 @@ static int spn_zone_free(lua_State *L) {
     if (z->is_owner) {
         delete z->spec;
     }
+    return 0;
 }
 
 static int spn_zone_tostring(lua_State *L) {
