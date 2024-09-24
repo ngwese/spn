@@ -1,0 +1,6 @@
+#ifndef __LUA_SPN_VERSION_H__
+#define __LUA_SPN_VERSION_H__
+
+#define LUA_SPN_VERSION "@REPO_VERSION@"
+
+#endif

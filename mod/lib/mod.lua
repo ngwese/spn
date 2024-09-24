@@ -50,10 +50,13 @@ end
 local rules_file = "59-soundplane.rules"
 local rules_dst = "/etc/udev/rules.d/" .. rules_file
 
+local spn_udev_rules_ok = false
+
 local spn_udev_rules_installed = function()
   local f = io.open(rules_dst, "r")
   if f ~= nil then
     io.close(f)
+    spn_udev_rules_ok = true
     return true
   end
 
@@ -72,6 +75,8 @@ local spn_install_udev_rules = function()
   print("   >> '" .. cmd_reload .. "'")
   os.execute(cmd_reload)
   print("spn: udev rule installation complete")
+
+  spn_udev_rules_ok = true
 end
 
 local post_startup = function()
@@ -106,11 +111,30 @@ menu.enc = function(n, d)
 end
 
 menu.redraw = function()
+  local start_x = 4
+  local line_y = 10
   screen.clear()
-  screen.move(64,40)
-  screen.text_center("spn")
+  screen.move(start_x, 1 * line_y)
+  screen.text("spn")
+  screen.move(start_x, 2 * line_y)
+  screen.text("build: " .. spn.client.VERSION)
+  screen.move(start_x, 3 * line_y)
+  if spn_udev_rules_ok then
+    screen.text("udev: ok")
+  else
+    screen.text("udev: not installed")
+  end
+
+  if spn.client.is_running() then
+    screen.move(start_x, 4 * line_y)
+    screen.text("client: running")
+    screen.move(start_x, 5 * line_y)
+    screen.text("rate: " .. spn.client.get_property('data_rate'))
+  end
+
   screen.update()
 end
+
 
 menu.init = function() end -- on menu entry, ie, if you wanted to start timers
 menu.deinit = function() end -- on menu exit

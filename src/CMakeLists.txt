@@ -11,6 +11,14 @@ include(FindPkgConfig)
 pkg_check_modules(LIBLUA REQUIRED lua-5.3)
 include_directories(${LIBLUA_INCLUDE_DIRS})
 
+#
+# version
+#
+add_custom_target(spn_version
+  ${CMAKE_COMMAND} -D SRC=${CMAKE_CURRENT_SOURCE_DIR}/spn_version.h.in
+                   -D DST=${CMAKE_CURRENT_SOURCE_DIR}/spn_version.h
+                   -P ${CMAKE_SOURCE_DIR}/cmake/version.cmake
+)
 
 #
 # module
@@ -26,6 +34,7 @@ set(SOURCE_FILES
 )
 
 add_library(lua-extension MODULE ${SOURCE_FILES})
+add_dependencies(lua-extension spn_version)
 set_target_properties(lua-extension PROPERTIES
   PREFIX ""     # strip `lib` prefix
   OUTPUT_NAME "${LUA_MODULE_NAME}"
