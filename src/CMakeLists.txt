@@ -33,4 +33,8 @@ set_target_properties(lua-extension PROPERTIES
 target_link_libraries(lua-extension soundplaneclient)
 
 set(NORNS_SOURCE_DIR "${CMAKE_SOURCE_DIR}/dep/norns")
-target_include_directories(lua-extension PUBLIC "${NORNS_SOURCE_DIR}/matron/src")
+target_include_directories(lua-extension PUBLIC
+  "${NORNS_SOURCE_DIR}/matron/src"
+  "${NORNS_SOURCE_DIR}/matron/src/device"
+  "${NORNS_SOURCE_DIR}/matron/src/hardware"
+)
